@@ -24,6 +24,8 @@ interface Manga : SManga {
 
     var cover_last_modified: Long
 
+    var last_chapter_id: Long?
+
     fun setChapterOrder(order: Int) {
         setChapterFlags(order, CHAPTER_SORT_MASK)
     }

@@ -36,6 +36,8 @@ open class MangaImpl : Manga {
 
     override var cover_last_modified: Long = 0
 
+    override var last_chapter_id: Long? = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false

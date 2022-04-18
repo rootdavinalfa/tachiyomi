@@ -367,7 +367,7 @@ class MangaController :
         fab.setText(R.string.action_start)
         fab.setIconResource(R.drawable.ic_play_arrow_24dp)
         fab.setOnClickListener {
-            val item = presenter.getNextUnreadChapter()
+            val item = presenter.getLastReadChapter()
             if (item != null) {
                 openChapter(item.chapter, it)
             }

@@ -48,6 +48,8 @@ object MangaTable {
 
     const val COMPUTED_COL_READ_COUNT = "read_count"
 
+    const val COL_LAST_CHAPTER_ID = "last_chapter_id"
+
     val createTableQuery: String
         get() =
             """CREATE TABLE $TABLE(
@@ -68,7 +70,8 @@ object MangaTable {
             $COL_VIEWER INTEGER NOT NULL,
             $COL_CHAPTER_FLAGS INTEGER NOT NULL,
             $COL_COVER_LAST_MODIFIED LONG NOT NULL,
-            $COL_DATE_ADDED LONG NOT NULL
+            $COL_DATE_ADDED LONG NOT NULL,
+            $COL_LAST_CHAPTER_ID LONG
             )"""
 
     val createUrlIndexQuery: String
@@ -83,6 +86,9 @@ object MangaTable {
 
     val addDateAdded: String
         get() = "ALTER TABLE $TABLE ADD COLUMN $COL_DATE_ADDED LONG NOT NULL DEFAULT 0"
+
+    val addLastChapterId: String
+        get() = "ALTER TABLE $TABLE ADD COLUMN $COL_LAST_CHAPTER_ID LONG"
 
     /**
      * Used with addDateAdded to populate it with the oldest chapter fetch date.

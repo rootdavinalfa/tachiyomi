@@ -116,8 +116,18 @@ class ReaderPresenter(
                         preferences.skipFiltered() -> {
                             (manga.readFilter == Manga.CHAPTER_SHOW_READ && !it.read) ||
                                 (manga.readFilter == Manga.CHAPTER_SHOW_UNREAD && it.read) ||
-                                (manga.downloadedFilter == Manga.CHAPTER_SHOW_DOWNLOADED && !downloadManager.isChapterDownloaded(it, manga)) ||
-                                (manga.downloadedFilter == Manga.CHAPTER_SHOW_NOT_DOWNLOADED && downloadManager.isChapterDownloaded(it, manga)) ||
+                                (
+                                    manga.downloadedFilter == Manga.CHAPTER_SHOW_DOWNLOADED && !downloadManager.isChapterDownloaded(
+                                        it,
+                                        manga,
+                                    )
+                                    ) ||
+                                (
+                                    manga.downloadedFilter == Manga.CHAPTER_SHOW_NOT_DOWNLOADED && downloadManager.isChapterDownloaded(
+                                        it,
+                                        manga,
+                                    )
+                                    ) ||
                                 (manga.bookmarkedFilter == Manga.CHAPTER_SHOW_BOOKMARKED && !it.bookmark) ||
                                 (manga.bookmarkedFilter == Manga.CHAPTER_SHOW_NOT_BOOKMARKED && it.bookmark)
                         }
@@ -392,6 +402,16 @@ class ReaderPresenter(
             onChapterChanged(currentChapters.currChapter)
             loadNewChapter(selectedChapter)
         }
+        //
+        updateMangaLastChapterRead(selectedChapter)
+    }
+
+    private fun updateMangaLastChapterRead(currentChapter: ReaderChapter) {
+        val manga = db.getManga(currentChapter.chapter.manga_id ?: -1).executeAsBlocking()
+        manga?.last_chapter_id = currentChapter.chapter.id
+        manga?.let {
+            db.updateMangaLastChapter(it).executeAsBlocking()
+        }
     }
 
     /**
@@ -520,18 +540,20 @@ class ReaderPresenter(
         db.updateViewerFlags(manga).executeAsBlocking()
 
         Observable.timer(250, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-            .subscribeFirst({ view, _ ->
-                val currChapters = viewerChaptersRelay.value
-                if (currChapters != null) {
-                    // Save current page
-                    val currChapter = currChapters.currChapter
-                    currChapter.requestedPage = currChapter.chapter.last_page_read
+            .subscribeFirst(
+                { view, _ ->
+                    val currChapters = viewerChaptersRelay.value
+                    if (currChapters != null) {
+                        // Save current page
+                        val currChapter = currChapters.currChapter
+                        currChapter.requestedPage = currChapter.chapter.last_page_read
 
-                    // Emit manga and chapters to the new viewer
-                    view.setManga(manga)
-                    view.setChapters(currChapters)
-                }
-            },)
+                        // Emit manga and chapters to the new viewer
+                        view.setManga(manga)
+                        view.setChapters(currChapters)
+                    }
+                },
+            )
     }
 
     /**
@@ -557,12 +579,14 @@ class ReaderPresenter(
         logcat(LogPriority.INFO) { "Manga orientation is ${manga.orientationType}" }
 
         Observable.timer(250, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-            .subscribeFirst({ view, _ ->
-                val currChapters = viewerChaptersRelay.value
-                if (currChapters != null) {
-                    view.setOrientation(getMangaOrientationType())
-                }
-            },)
+            .subscribeFirst(
+                { view, _ ->
+                    val currChapters = viewerChaptersRelay.value
+                    if (currChapters != null) {
+                        view.setOrientation(getMangaOrientationType())
+                    }
+                },
+            )
     }
 
     /**
@@ -594,7 +618,8 @@ class ReaderPresenter(
         val filename = generateFilename(manga, page)
 
         // Pictures directory.
-        val relativePath = if (preferences.folderPerManga()) DiskUtil.buildValidFilename(manga.title) else ""
+        val relativePath =
+            if (preferences.folderPerManga()) DiskUtil.buildValidFilename(manga.title) else ""
 
         // Copy file in background.
         try {

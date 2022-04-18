@@ -503,6 +503,7 @@ class MangaPresenter(
 
     /**
      * Returns the next unread chapter or null if everything is read.
+     * See also [getLastReadChapter]
      */
     fun getNextUnreadChapter(): ChapterItem? {
         return if (sortDescending()) {
@@ -510,6 +511,15 @@ class MangaPresenter(
         } else {
             filteredAndSortedChapters.find { !it.read }
         }
+    }
+
+    /**
+     * Return the last read chapter, if not available. this will calling [getNextUnreadChapter]
+     */
+    fun getLastReadChapter(): ChapterItem? {
+        val nManga = db.getManga(manga.id!!).executeAsBlocking()
+        return filteredAndSortedChapters.findLast { it.chapter.id == nManga!!.last_chapter_id }
+            ?: getNextUnreadChapter()
     }
 
     fun getUnreadChaptersSorted(): List<ChapterItem> {
@@ -756,7 +766,12 @@ class MangaPresenter(
                                 db.insertTrack(track).executeAsBlocking()
 
                                 if (it.service is EnhancedTrackService) {
-                                    syncChaptersWithTrackServiceTwoWay(db, allChapters, track, it.service)
+                                    syncChaptersWithTrackServiceTwoWay(
+                                        db,
+                                        allChapters,
+                                        track,
+                                        it.service,
+                                    )
                                 }
                             }
                         }

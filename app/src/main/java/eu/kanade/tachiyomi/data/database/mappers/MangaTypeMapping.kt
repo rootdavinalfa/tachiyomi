@@ -21,6 +21,7 @@ import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_FAVORITE
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_GENRE
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_ID
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_INITIALIZED
+import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_LAST_CHAPTER_ID
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_LAST_UPDATE
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_SOURCE
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_STATUS
@@ -67,6 +68,7 @@ class MangaPutResolver : DefaultPutResolver<Manga>() {
             COL_CHAPTER_FLAGS to obj.chapter_flags,
             COL_COVER_LAST_MODIFIED to obj.cover_last_modified,
             COL_DATE_ADDED to obj.date_added,
+            COL_LAST_CHAPTER_ID to obj.last_chapter_id,
         )
 }
 
@@ -89,6 +91,7 @@ interface BaseMangaGetResolver {
         chapter_flags = cursor.getInt(cursor.getColumnIndexOrThrow(COL_CHAPTER_FLAGS))
         cover_last_modified = cursor.getLong(cursor.getColumnIndexOrThrow(COL_COVER_LAST_MODIFIED))
         date_added = cursor.getLong(cursor.getColumnIndexOrThrow(COL_DATE_ADDED))
+        last_chapter_id = cursor.getLong(cursor.getColumnIndexOrThrow(COL_LAST_CHAPTER_ID))
     }
 }
 
